@@ -1,0 +1,8 @@
+CREATE DATABASE PokemonTCG;
+\c PokemonTCG
+CREATE TABLE Users (
+	id SERIAL PRIMARY KEY,
+	username VARCHAR(30),
+	email VARCHAR(255),
+	password VARCHAR(255)
+);
