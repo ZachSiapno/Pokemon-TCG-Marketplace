@@ -6,7 +6,7 @@ let hostname = "localhost";
 let port = 3000;
 let app = express();
 
-app.use(express.urlencoded({ extended: true }));
+//app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static("public"));
 
@@ -18,9 +18,12 @@ pool.connect().then(() => {
 app.post("/signup", (req, res) => {
   const { username, email, password, confirmPassword } = req.body || {};
 
+// FUTURE NOTE CHECK FOR DUPLICATE ACCOUNTS NOT ADDED YET!!!!!!!!!
+// FUTURE NOTE 2 ADD VALIDATION FOR EMAILS ETC
+
   if (password !== confirmPassword) {
     console.log("Password does not match the confirmed password")
-    return res.status(500).send()
+    return res.status(400).send("Passwords do not match");
   }
 
   pool.query(
@@ -28,9 +31,9 @@ app.post("/signup", (req, res) => {
     [username, email, password]
   )
 
-  res.status(200).send("Account created!");
+  console.log("Account created!");
+  return res.status(200).send();
 });
-
 
 app.listen(port, hostname, () => {
   console.log(`http://${hostname}:${port}`);
