@@ -1,6 +1,6 @@
-CREATE DATABASE PokemonTCG;
-\c PokemonTCG
-CREATE TABLE Users (
+CREATE DATABASE pokemontcg;
+\c pokemontcg
+CREATE TABLE users (
 	id SERIAL PRIMARY KEY,
 	username VARCHAR(30),
 	email VARCHAR(255),
