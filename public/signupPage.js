@@ -18,7 +18,7 @@ signUpButton.addEventListener("click", () => {
             password: password.value,
             confirmPassword: confirmPassword.value
     }),
-    }).then((response) => {
+    }).then(async (response) => {
         errorMessage.style.color = "black";
 
         if (!response.ok) {
@@ -28,6 +28,11 @@ signUpButton.addEventListener("click", () => {
                 errorMessage.textContent = text;
             });
         }
+
+        const data = await response.json();
+
+        sessionStorage.setItem("userId", data.id);
+        sessionStorage.setItem("username", data.username);
 
         window.location.href = "/";
     }).catch((error) => {

@@ -15,36 +15,48 @@ pool.connect().then(() => {
   console.log("Connected to database");
 });
 
-
 /*
   SIGNUP AND LOGIN PAGES
 */
+
 app.post("/signup", async (req, res) => {
   const { username, email, password, confirmPassword } = req.body || {};
 
 // FUTURE NOTE CHECK FOR DUPLICATE ACCOUNTS NOT ADDED YET!!!!!!!!!
 // FUTURE NOTE 2 ADD VALIDATION FOR EMAILS ETC
 // ADD SESSION STORAGE WHEN SIMILAR TO LOGIN WHEN SIGNUP
-
   if (password !== confirmPassword) {
     console.log("Password does not match the confirmed password")
     return res.status(400).send("Passwords do not match");
   }
 
+  // Account register
   try {
     await pool.query(
       `INSERT INTO users (username, email, password) VALUES($1, $2, $3)`,
       [username, email, password]
     )
-  
 
   console.log("Account created!");
-  return res.status(201).send();
+  const userData = await loginUser(username, password);
+
+  // Account login
+  try {
+    if (!userData) { return res.status(401).send("Invalid username or password"); }
+  
+    return res.status(201).json(userData);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send("Login failed");
+  }
+
   } catch (err) {
     console.log(err);
     return res.status(500).send("Failed to create account");
   }
 });
+
+
 
 app.post("/login", async (req, res) => {
   const { username, password } = req.body || {};
@@ -55,12 +67,14 @@ app.post("/login", async (req, res) => {
   try {
     if (!userData) { return res.status(401).send("Invalid username or password"); }
   
-  return res.status(200).json(userData);
+    return res.status(201).json(userData);
   } catch (err) {
     console.log(err);
     return res.status(500).send("Login failed");
   }
 });
+
+
 
 async function loginUser(username, password) {
   try {
