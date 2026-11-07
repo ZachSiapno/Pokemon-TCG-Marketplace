@@ -1,8 +1,15 @@
 {
+  "name": "pokemon-tcg-marketplace",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "setup": "psql -U postgres -f setupAccount.sql",
+    "reset": "psql -U postgres -d pokemontcg -f resetAccounts.sql"
+  },
   "dependencies": {
     "axios": "^1.21.0",
     "express": "^5.3.0",
-    "pg": "^8.23.1",
-    "pq": "^0.0.3"
+    "pg": "^8.23.1"
   }
 }
