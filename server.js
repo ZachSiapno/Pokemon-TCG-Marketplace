@@ -1,4 +1,5 @@
 let express = require("express");
+let axios = require("axios");
 let { Pool } = require("pg");
 let env = require("./env.json");
 
@@ -101,6 +102,42 @@ async function loginUser(username, password) {
     console.log(err);
   }
 }
+
+/*
+  MARKETPLACE: SETS
+*/
+
+// TCGdex is the free Pokemon card database we get the sets from
+let tcgdexUrl = "https://api.tcgdex.net/v2/en";
+
+app.get("/sets", async (req, res) => {
+  try {
+    let response = await axios.get(`${tcgdexUrl}/sets`);
+
+    // only send the page what it needs: id, name, logo and how many cards are in the set
+    let sets = response.data.map((set) => {
+      let logo = null;
+      if (set.logo) {
+        // the logo is a base address, so add a file type to get an actual picture
+        logo = set.logo + ".webp";
+      }
+
+      let cardCount = 0;
+      if (set.cardCount) {
+        cardCount = set.cardCount.total;
+      }
+
+      return { id: set.id, name: set.name, logo: logo, cardCount: cardCount };
+    });
+
+    return res.json(sets);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send("Could not load the sets");
+  }
+});
+
+
 
 app.listen(port, hostname, () => {
   console.log(`http://${hostname}:${port}`);

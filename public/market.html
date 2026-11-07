@@ -6,58 +6,20 @@
 <!DOCTYPE html>
 <html>
     <head>
-
+        <title>Marketplace</title>
     </head>
 
     <body>
         <h1>Marketplace</h1>
+        <a href="/">Home</a>
 
-        <label for="username">Username</label>
-        <br>
-        <input type="text"
-            id="username"
-            required
-        >
+        <h2>Sets</h2>
+        <p id="message">Loading sets...</p>
 
-        <br><br>
-        <label for="email">Email</label>
+        <div id="sets">
+            <!-- market.js adds one box for each set here -->
+        </div>
 
-        <br>
-        <input type="text"
-            id="email"
-            required
-        >
-
-        <br><br>
-        <label for="password">Password</label>
-
-        <br>
-        <input type="password"
-            id="password"
-            required
-        >
-
-        <br><br>
-        <label for="confirmPassword">Confirm Password</label>
-
-        <br>
-        <input type="password"
-            id="confirmPassword"
-            required
-        >
-
-        <br><br>
-        <button id="signup"> Sign Up </button>
-
-        <br>
-
-        <div id="error"></div>
-        
-        <p>
-            Already have an account?
-            <a href="login.html">Login</a>
-        </p>
-
-        <script src="signupPage.js"></script>
+        <script src="market.js"></script>
     </body>
 </html>
