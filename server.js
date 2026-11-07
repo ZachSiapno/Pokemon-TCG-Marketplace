@@ -108,17 +108,17 @@ async function loginUser(username, password) {
 */
 
 // TCGdex is the free Pokemon card database we get the sets from
+// This is the base requests
 let tcgdexUrl = "https://api.tcgdex.net/v2/en";
 
-app.get("/sets", async (req, res) => {
-  try {
-    let response = await axios.get(`${tcgdexUrl}/sets`);
-
-    // only send the page what it needs: id, name, logo and how many cards are in the set
+// GET /sets
+app.get("/sets", (req, res) => {
+  // axios.get gives back a promise, and .then runs when TCGdex has answered
+  axios.get(`${tcgdexUrl}/sets`).then((response) => {
+    // the list of sets is in response.data
     let sets = response.data.map((set) => {
       let logo = null;
       if (set.logo) {
-        // the logo is a base address, so add a file type to get an actual picture
         logo = set.logo + ".webp";
       }
 
@@ -131,12 +131,12 @@ app.get("/sets", async (req, res) => {
     });
 
     return res.json(sets);
-  } catch (err) {
+  }).catch((err) => {
+    // runs if the request failed or anything inside the .then threw an error
     console.log(err);
     return res.status(500).send("Could not load the sets");
-  }
+  });
 });
-
 
 
 app.listen(port, hostname, () => {
