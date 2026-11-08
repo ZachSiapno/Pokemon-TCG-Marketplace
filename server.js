@@ -190,6 +190,114 @@ app.get("/sets/:id/cards", (req, res) => {
 });
 
 
+
+
+app.get("/profile/:username", async (req, res) => {
+  const user = req.params.username;
+
+  try {
+    const userData = await pool.query(
+      `SELECT id, username
+      FROM users
+      WHERE username=$1
+      `,
+      [user]
+    );
+
+    if (userData.rows.length === 0) {
+      return res.status(404).send("User not found");
+    }
+
+    const id = userData.rows[0].id;
+    const username = userData.rows[0].username;
+
+    const followerData = await pool.query( // YOUR NUMBER OF FOLLOWERS
+      `SELECT COUNT(*) AS follower_count
+      FROM follows
+      WHERE following_id=$1
+      `,
+      [id]
+    );
+
+    const followingData  = await pool.query( // NUMBER OF PEOPLE YOU'RE FOLLOWING
+      `SELECT COUNT(*) AS following_count
+      FROM follows
+      WHERE follower_id=$1
+      `,
+      [id]
+    );
+
+
+    const followerCount = followerData.rows[0].follower_count;
+    const followingCount = followingData.rows[0].following_count;
+
+    res.status(200).json({
+      id: id,
+      username: username,
+      followerCount: followerCount,
+      followingCount: followingCount
+    });
+
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send("Server error");
+  }
+});
+
+
+
+app.get("/profile/:username", async (req, res) => {
+  const user = req.params.username;
+
+  try {
+    const userData = await pool.query(
+      `SELECT id, username
+      FROM users
+      WHERE username=$1
+      `,
+      [user]
+    );
+
+    if (userData.rows.length === 0) {
+      return res.status(404).send("User not found");
+    }
+
+    const id = userData.rows[0].id;
+    const username = userData.rows[0].username;
+
+    const followerData = await pool.query( // YOUR NUMBER OF FOLLOWERS
+      `SELECT COUNT(*) AS follower_count
+      FROM follows
+      WHERE following_id=$1
+      `,
+      [id]
+    );
+
+    const followingData  = await pool.query( // NUMBER OF PEOPLE YOU'RE FOLLOWING
+      `SELECT COUNT(*) AS following_count
+      FROM follows
+      WHERE follower_id=$1
+      `,
+      [id]
+    );
+
+
+    const followerCount = followerData.rows[0].follower_count;
+    const followingCount = followingData.rows[0].following_count;
+
+    res.status(200).json({
+      id: id,
+      username: username,
+      followerCount: followerCount,
+      followingCount: followingCount
+    });
+
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send("Server error");
+  }
+});
+
 app.listen(port, hostname, () => {
   console.log(`http://${hostname}:${port}`);
 });

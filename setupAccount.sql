@@ -6,3 +6,11 @@ CREATE TABLE users (
 	email VARCHAR(255),
 	password VARCHAR(255)
 );
+
+CREATE TABLE follows (
+    follower_id INT REFERENCES users(id),
+    following_id INT REFERENCES users(id),
+    PRIMARY KEY (follower_id, following_id)
+
+	CHECK (follower_id <> following_id)
+);
