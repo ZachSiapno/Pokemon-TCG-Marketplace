@@ -139,6 +139,16 @@ app.get("/sets", (req, res) => {
   });
 });
 
+/*
+  MARKETPLACE: THE SET PAGE
+*/
+
+// GET /set/:id (for example /set/swsh3)
+// Sends back set.html. It's the same page for every set, set.js reads the id from the address.
+app.get("/set/:id", (req, res) => {
+  res.sendFile(__dirname + "/public/set.html");
+});
+
 // GET /sets/:id/cards
 // Returns the cards the complete list of cards belonging to a specific set, with an
 app.get("/sets/:id/cards", (req, res) => {
@@ -188,7 +198,6 @@ app.get("/sets/:id/cards", (req, res) => {
     return res.status(500).send("Could not load the cards");
   });
 });
-
 
 
 

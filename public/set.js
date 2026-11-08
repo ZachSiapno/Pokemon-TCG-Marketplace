@@ -9,7 +9,7 @@ let message = document.getElementById("message");
 let cardsDiv = document.getElementById("cards");
 
 // This uses the set ID from the page URL (e.g., set.html?id=swsh3 gets the Pokemon TCG set from "Sword & Shield—Darkness Ablaze")
-let setId = new URLSearchParams(window.location.search).get("id");
+let setId = window.location.pathname.split("/")[2];
 
 // Creates one box for a card and adds it to the page.
 function addCard(card) {
@@ -87,7 +87,7 @@ searchButton.addEventListener("click", () => {
 });
 
 // Load set if an ID was provided in the url.
-if (setId === null) {
+if (!setId) {
     message.style.color = "red";
     message.textContent = "No set chosen. Go back to the sets and click one.";
 } else {

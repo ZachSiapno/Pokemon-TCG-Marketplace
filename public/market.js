@@ -25,7 +25,7 @@ function addSet(set) {
     // Create a link to the set's page using it's id
     let name = document.createElement("h3");
     let link = document.createElement("a");
-    link.href = "set.html?id=" + encodeURIComponent(set.id);
+    link.href = "/set/" + encodeURIComponent(set.id);
     link.textContent = set.name;
     name.appendChild(link);
     box.appendChild(name);
