@@ -1,0 +1,30 @@
+<!--
+ Card catalog for one set.
+ market.html links here with the set's id in the address, like set.html?id=swsh3
+ -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Set</title>
+    </head>
+
+    <body>
+        <a href="market.html">Back to sets</a>
+
+        <h1 id="setName">Set</h1>
+
+        <label for="search">Search by name</label>
+        <br>
+        <input type="text"
+            id="search"
+        >
+        <button id="searchButton"> SEARCH </button>
+
+        <p id="message">Loading cards...</p>
+
+        <div id="cards" style="display: flex; flex-wrap: wrap; gap: 15px;">
+        </div>
+
+        <script src="set.js"></script>
+    </body>
+</html>

@@ -3,38 +3,39 @@
 let setsDiv = document.getElementById("sets");
 let message = document.getElementById("message");
 
-// Makes one box for a set and adds it to the page.
-// set looks like { id: "base1", name: "Base Set", logo: "https://...webp", cardCount: 102 }
-// Each box ends up as:  <div id="base1"> <img> <h3>Base Set</h3> <p>102 cards</p> </div>
+// Create a box displaying a Pokemon TCG set's logo, name, and number of cards in it.
 function addSet(set) {
     let box = document.createElement("div");
     // the box's id is the set's id, so later we can find the box for a set (clicking it, filtering it)
     box.id = set.id;
 
-    // logo is null when TCGdex has no picture for the set, so skip the img in that case
+    // some sets don't have a logo, so skip the img in that case
     if (set.logo) {
         let logo = document.createElement("img");
         logo.src = set.logo;
         logo.alt = set.name + " logo";
         logo.height = 60;
-        // a set can have a logo address that doesn't actually load (I tried looking at https://tcgdex.net/database and that didn't work at times),
-        // so hide the broken image icon instead of showing it
+        // Hide the image if its URL doesn't load.
         logo.addEventListener("error", () => {
             logo.style.display = "none";
         });
         box.appendChild(logo);
     }
 
-    // textContent (not innerHTML) so a weird set name can never be treated as HTML
+    // Create a link to the set's page using it's id
     let name = document.createElement("h3");
-    name.textContent = set.name;
+    let link = document.createElement("a");
+    link.href = "set.html?id=" + encodeURIComponent(set.id);
+    link.textContent = set.name;
+    name.appendChild(link);
     box.appendChild(name);
 
+    // Displays number of cards in set.
     let count = document.createElement("p");
     count.textContent = set.cardCount + " cards";
     box.appendChild(count);
 
-    // nothing shows up until the box is added to the page
+    // add completed box to the page.
     setsDiv.appendChild(box);
 }
 
@@ -42,7 +43,7 @@ function addSet(set) {
 fetch("/sets").then(async (response) => {
     message.style.color = "black";
 
-    // the server answered but said something went wrong (like our 500 "Could not load the sets"), so show the server's own text in red and stop
+    // Display server's error message if request was unsuccessful.
     if (!response.ok) {
         message.style.color = "red";
         return response.text().then((text) => {

@@ -108,13 +108,14 @@ async function loginUser(username, password) {
 */
 
 // TCGdex is the free Pokemon card database we get the sets from
-// This is the base requests
+// This is the base UrL we will use to access info.
 let tcgdexUrl = "https://api.tcgdex.net/v2/en";
 
 // GET /sets
+// Return list of sets with information needed by the marketplace
 app.get("/sets", (req, res) => {
-  // axios.get gives back a promise, and .then runs when TCGdex has answered
-  axios.get(`${tcgdexUrl}/sets`).then((response) => {
+  // Request list of sets from TCG API
+    axios.get(`${tcgdexUrl}/sets`).then((response) => {
     // the list of sets is in response.data
     let sets = response.data.map((set) => {
       let logo = null;
@@ -135,6 +136,56 @@ app.get("/sets", (req, res) => {
     // runs if the request failed or anything inside the .then threw an error
     console.log(err);
     return res.status(500).send("Could not load the sets");
+  });
+});
+
+// GET /sets/:id/cards
+// Returns the cards the complete list of cards belonging to a specific set, with an
+app.get("/sets/:id/cards", (req, res) => {
+  let setId = req.params.id;
+
+  // represents the text typed into the search box,
+  let search = req.query.name
+  // use empty string if there's nothing.
+  if (!search) {
+    search = "";
+  }
+  // lowecase it so stuff like "PIKACHU" and "pikachu" match the same cards
+  search = search.toLowerCase()
+
+  axios.get(`${tcgdexUrl}/sets/${encodeURIComponent(setId)}`).then((response) => {
+    let set = response.data;
+    let allCards = set.cards || [];
+
+    let cards = allCards.filter((card) => {
+      // a card with no name just never matches a search
+      let cardName = card.name
+
+      if (!cardName) {
+        cardName = "";
+      }
+      cardName = cardName.toLowerCase();
+      
+      return cardName.includes(search);
+    }).map((card) => {
+      let image = null;
+      if (card.image) {
+        // the image is a base address; a size and file type are added so that we can get an actual picture
+        image = card.image + "/low.webp";
+      }
+
+      return { id: card.id, localId: card.localId, name: card.name, image: image };
+    });
+
+    return res.json({ id: set.id, name: set.name, total: allCards.length, cards: cards });
+  }).catch((err) => {
+    // Case where there is no id with the tcg set like that.
+    if (err.response && err.response.status === 404) {
+      return res.status(404).send("Set not found");
+    }
+
+    console.log(err);
+    return res.status(500).send("Could not load the cards");
   });
 });
 
