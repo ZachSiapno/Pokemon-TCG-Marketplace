@@ -1,0 +1,39 @@
+<!--
+ Details for one card.
+ set.html links to /card/swsh3-136 and the server (the /card/:id route in server.js) sends this page.
+ card.js reads the card's id from the end of the address and fills in everything below.
+ -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Card</title>
+    </head>
+
+    <body>
+        <!-- card.js changes this to go back to the card's own set once it knows which set that is -->
+        <a id="backLink" href="/market.html">Back to sets</a>
+
+        <!-- card.js replaces this with the card's real name -->
+        <h1 id="cardName">Card</h1>
+
+        <!-- card.js writes into this line: nothing when it works, red error text when it doesn't -->
+        <p id="message">Loading card...</p>
+
+        <!-- picture on the left, table of details on the right. flex puts them side by side
+             and flex-wrap drops the table under the picture on a narrow screen -->
+        <div style="display: flex; flex-wrap: wrap; gap: 30px;">
+            <div id="picture"></div>
+
+            <div>
+                <!-- card.js adds one row per detail here (set, rarity, hp ...) -->
+                <table id="details" border="1" cellpadding="6"></table>
+            </div>
+        </div>
+
+        <!-- card.js adds the card's abilities and attacks here -->
+        <div id="moves"></div>
+
+        <!-- keep this at the bottom so the elements above exist when the script runs -->
+        <script src="/card.js"></script>
+    </body>
+</html>

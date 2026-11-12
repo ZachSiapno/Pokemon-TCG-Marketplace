@@ -199,6 +199,88 @@ app.get("/sets/:id/cards", (req, res) => {
   });
 });
 
+/*
+  MARKETPLACE: How I want it to display a card's page
+*/
+// GET /card/:id (for example /card/swsh3-136)
+// Sends back card.html. It's the same page for every card, card.js reads the id from the address.
+app.get("/card/:id", (req, res) => {
+  res.sendFile(__dirname + "/public/card.html");
+});
+
+// GET /cards/:id (for example /cards/swsh3-136)
+// Returns the details of one card. Unlike the card list inside a set, one card from TCGdex has
+// everything: rarity, hp, attacks and so on. TCGdex sends more than the page needs
+// (like prices), so this builds a smaller object with only what card.js shows.
+// Success: 200 and { id, name, rarity, hp, types, attacks, ... } (fields a card doesn't have are null or [])
+// Failure: 404 "Card not found" if TCGdex has no card with that id, or 500 "Could not load the card"
+app.get("/cards/:id", (req, res) => {
+  let cardId = req.params.id;
+
+  axios.get(`${tcgdexUrl}/cards/${encodeURIComponent(cardId)}`).then((response) => {
+    let card = response.data;
+
+    // Trainer and Energy cards have no hp, types or attacks, so every list falls back to
+    // an empty list and every single value falls back to null instead of crashing.
+    let attacks = (card.attacks || []).map((attack) => {
+      return {
+        name: attack.name,
+        cost: attack.cost || [],
+        damage: attack.damage || null,
+        effect: attack.effect || null
+      };
+    });
+
+    let abilities = (card.abilities || []).map((ability) => {
+      return { type: ability.type || null, name: ability.name, effect: ability.effect || null };
+    });
+
+    let image = null;
+    if (card.image) {
+      // the image is a base address, so add a size and file type. high is bigger than the low one on the set page
+      image = card.image + "/high.webp";
+    }
+
+    // card.set is the set this card belongs to. cardCount.official is how many numbered cards it has
+    let set = { id: null, name: null, official: null };
+    if (card.set) {
+      set.id = card.set.id;
+      set.name = card.set.name;
+      if (card.set.cardCount) {
+        set.official = card.set.cardCount.official;
+      }
+    }
+
+    return res.json({
+      id: card.id,
+      localId: card.localId,
+      name: card.name,
+      image: image,
+      category: card.category || null,
+      rarity: card.rarity || null,
+      hp: card.hp || null,
+      types: card.types || [],
+      stage: card.stage || null,
+      evolveFrom: card.evolveFrom || null,
+      description: card.description || null,
+      illustrator: card.illustrator || null,
+      regulationMark: card.regulationMark || null,
+      dexId: card.dexId || [],
+      attacks: attacks,
+      abilities: abilities,
+      weaknesses: card.weaknesses || [],
+      resistances: card.resistances || [],
+      set: set
+    });
+  }).catch((err) => {
+    // TCGdex answered 404 because there is no card with that id. That's not our server breaking
+    if (err.response && err.response.status === 404) {
+      return res.status(404).send("Card not found");
+    }
+    console.log(err);
+    return res.status(500).send("Could not load the card");
+  });
+});
 
 
 app.get("/profile/:username", async (req, res) => {

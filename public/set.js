@@ -8,12 +8,17 @@ let searchButton = document.getElementById("searchButton");
 let message = document.getElementById("message");
 let cardsDiv = document.getElementById("cards");
 
+// The address looks like /set/swsh3, and window.location.pathname is the part after the website name: "/set/swsh3".
+// split("/") cuts it at every slash into ["", "set", "swsh3"], so [2] is the set's id.
 // This uses the set ID from the page URL (e.g., set.html?id=swsh3 gets the Pokemon TCG set from "Sword & Shield—Darkness Ablaze")
 let setId = window.location.pathname.split("/")[2];
 
 // Creates one box for a card and adds it to the page.
 function addCard(card) {
     let box = document.createElement("div");
+
+    // Both the picture and the name, link to this
+    let cardAddress = "/card/" + encodeURIComponent(card.id);
 
     // Some cards won't have an image so only add one and display it if it exists.
     if (card.image) {
@@ -27,9 +32,17 @@ function addCard(card) {
             picture.style.display = "none";
         });
         box.appendChild(picture);
+        // the picture goes inside a link so that clicking it displays the card's page.
+        let pictureLink = document.createElement("a");
+        pictureLink.href = cardAddress;
+        pictureLink.appendChild(picture);
+        box.appendChild(pictureLink);
     }
 
     let name = document.createElement("p");
+    let nameLink = document.createElement("a");
+    nameLink.href = cardAddress;
+    nameLink.textContent = card.name
     name.textContent = card.name;
     box.appendChild(name);
 
