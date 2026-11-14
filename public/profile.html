@@ -22,10 +22,24 @@
 
         <div id="error"></div>
 
-        <main class="tabs">
-            <div id="display"></div>
-            <div id="collection"></div>
-            <div id="trades"></div>
+        <div class="tabButtons">
+            <button id="displayTab">Display</button>
+            <button id="collectionTab">Collection</button>
+            <button id="tradesTab">Trades</button>
+        </div>
+
+        <main>
+            <div id="display">
+                Featured Cards Here
+            </div>
+
+            <div id="collection" style="display: none;">
+                Collection Here
+            </div>
+
+            <div id="trades" style="display: none;">
+                Trades requests here
+            </div>
         </main>
 
         <script src="./js/profile.js"></script>

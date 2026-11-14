@@ -214,6 +214,52 @@ app.post("/unfollow", async (req, res) => {
 });
 
 
+
+app.post("/posts", async (req, res) => {
+    const { user_id, content } = req.body;
+
+    try {
+        await pool.query(
+            `INSERT INTO posts (user_id, content)
+             VALUES ($1, $2)
+            `,
+            [user_id, content]
+        );
+
+        res.sendStatus(201);
+    } catch (err) {
+        console.log(err);
+        res.sendStatus(500);
+    }
+});
+
+
+
+app.get("/posts", async (req, res) => {
+  try {
+    const data = await pool.query(
+      `SELECT
+          posts.id,
+          users.username,
+          posts.content,
+          posts.created_at
+        FROM posts
+        JOIN users
+        ON posts.user_id = users.id
+        ORDER BY posts.created_at DESC
+        LIMIT 20
+        `
+    );
+
+      res.json(data.rows);
+  } catch (err) {
+      console.log(err);
+      res.sendStatus(500);
+  }
+});
+
+
+
 app.listen(port, hostname, () => {
   console.log(`http://${hostname}:${port}`);
 });

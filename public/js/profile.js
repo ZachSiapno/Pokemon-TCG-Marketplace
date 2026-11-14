@@ -64,6 +64,32 @@ fetch(`/profile/${username}?viewerId=${userId}`)
 });
 
 
+// TABS
 
+const displayTab = document.getElementById("displayTab");
+const collectionTab = document.getElementById("collectionTab");
+const tradesTab = document.getElementById("tradesTab");
 
+const display = document.getElementById("display");
+const collection = document.getElementById("collection");
+const trades = document.getElementById("trades");
 
+function showTab(selectedTab) {
+    display.style.display = "none";
+    collection.style.display = "none";
+    trades.style.display = "none";
+
+    selectedTab.style.display = "block";
+}
+
+displayTab.addEventListener("click", () => {
+    showTab(display);
+});
+
+collectionTab.addEventListener("click", () => {
+    showTab(collection);
+});
+
+tradesTab.addEventListener("click", () => {
+    showTab(trades);
+});

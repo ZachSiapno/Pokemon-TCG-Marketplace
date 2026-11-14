@@ -25,7 +25,20 @@
         </nav>
         
         <main class="posts">
-            <!-- Append posts/trade requests here later -->
+
+            <form id="postForm">
+                <textarea
+                    id="content"
+                    placeholder="What's on your mind?"
+                ></textarea>
+
+                <button type="submit">
+                    Post
+                </button>
+            </form>
+
+            <div id="posts"></div>
+
         </main>
 
         <script src="./js/createAccount.js"></script>
