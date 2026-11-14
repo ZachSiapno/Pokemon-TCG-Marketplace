@@ -1,5 +1,6 @@
 const userId = Number(sessionStorage.getItem("userId")); // NOTE: USE TO CHECK IF YOUR PROFILE OR OTHER PROFILE LATER
-const username = window.location.pathname.split("/").pop();
+const username =
+    new URLSearchParams(window.location.search).get("user");
 
 const name = document.getElementById("name");
 const followers = document.getElementById("followers");
