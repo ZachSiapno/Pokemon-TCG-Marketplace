@@ -111,26 +111,67 @@ async function loginUser(username, password) {
 // This is the base UrL we will use to access info.
 let tcgdexUrl = "https://api.tcgdex.net/v2/en";
 
+
+
+// Building the list of sets takes about 20 requests to TCGdex, so it is slow.
+// After the first request finishes, the finished list is saved in this variable,
+// and every later request from any visitor just gets the saved copy.
+// The list stays the same until the server restarts.
+let setsCache = null;
+
 // GET /sets
-// Return list of sets with information needed by the marketplace
+// Return list of sets with information needed by the marketplace.
+// Each set also says which series it is in (Base, Neo, Sword & Shield ...), so market.js can group them.
+// Success: 200 and [{ id: "swsh3", name: "Darkness Ablaze", logo: "https://...webp", cardCount: 201, serieId: "swsh", serie: "Sword & Shield" }, ...]
+// Failure: 500 and the text "Could not load the sets"
 app.get("/sets", (req, res) => {
-  // Request list of sets from TCG API
-    axios.get(`${tcgdexUrl}/sets`).then((response) => {
-    // the list of sets is in response.data
-    let sets = response.data.map((set) => {
-      let logo = null;
-      if (set.logo) {
-        logo = set.logo + ".webp";
-      }
+  if (setsCache) {
+    return res.json(setsCache);
+  }
 
-      let cardCount = 0;
-      if (set.cardCount) {
-        cardCount = set.cardCount.total;
-      }
-
-      return { id: set.id, name: set.name, logo: logo, cardCount: cardCount };
+  // TCGdex's list of sets doesn't say which series each set is in. Its list of series does:
+  // asking for a single series (/series/swsh) gives that series' name and the sets inside it.
+  // So first ask for the list of series, then ask for every series in it.
+  axios.get(`${tcgdexUrl}/series`).then((response) => {
+    let requests = response.data.map((serie) => {
+      return axios.get(`${tcgdexUrl}/series/${encodeURIComponent(serie.id)}`);
     });
 
+    // Promise.all sends all of those requests at the same time and waits until every one has answered.
+    // The answers come back in the same order as the requests. If any one fails, it goes to the .catch below.
+    return Promise.all(requests);
+  }).then((responses) => {
+    let sets = [];
+
+    // one response per series, and each series has its own list of sets
+    for (let response of responses) {
+      let serie = response.data;
+
+      for (let set of serie.sets || []) {
+        let logo = null;
+        if (set.logo) {
+          logo = set.logo + ".webp";
+        }
+
+        let cardCount = 0;
+        if (set.cardCount) {
+          cardCount = set.cardCount.total;
+        }
+
+        // serieId and serie are what market.js uses to put the set under the right series heading.
+        // The sets stay in TCGdex's order, which keeps the sets of a series next to each other.
+        sets.push({
+          id: set.id,
+          name: set.name,
+          logo: logo,
+          cardCount: cardCount,
+          serieId: serie.id,
+          serie: serie.name
+        });
+      }
+    }
+
+    setsCache = sets;
     return res.json(sets);
   }).catch((err) => {
     // runs if the request failed or anything inside the .then threw an error
@@ -212,13 +253,34 @@ app.get("/card/:id", (req, res) => {
 // Returns the details of one card. Unlike the card list inside a set, one card from TCGdex has
 // everything: rarity, hp, attacks and so on. TCGdex sends more than the page needs
 // (like prices), so this builds a smaller object with only what card.js shows.
-// Success: 200 and { id, name, rarity, hp, types, attacks, ... } (fields a card doesn't have are null or [])
-// Failure: 404 "Card not found" if TCGdex has no card with that id, or 500 "Could not load the card"
+
 app.get("/cards/:id", (req, res) => {
   let cardId = req.params.id;
 
   axios.get(`${tcgdexUrl}/cards/${encodeURIComponent(cardId)}`).then((response) => {
     let card = response.data;
+
+    // The set info inside a card doesn't say which series the set belongs to,
+    // but the set's own page does (it has "serie": { id: "swsh", name: "Sword & Shield" }).
+    // So this asks TCGdex for the set as well, and passes the card and the series name on together.
+    if (!card.set || !card.set.id) {
+      return { card: card, serie: null };
+    }
+
+    return axios.get(`${tcgdexUrl}/sets/${encodeURIComponent(card.set.id)}`).then((setResponse) => {
+      let serie = null;
+      if (setResponse.data.serie) {
+        serie = setResponse.data.serie.name;
+      }
+      return { card: card, serie: serie };
+    }).catch((err) => {
+      // The series is one extra detail, not worth failing the whole card for.
+      // The card is still sent, without a series.
+      console.log(err);
+      return { card: card, serie: null };
+    });
+  }).then((result) => {
+    let card = result.card;
 
     // Trainer and Energy cards have no hp, types or attacks, so every list falls back to
     // an empty list and every single value falls back to null instead of crashing.
@@ -241,8 +303,9 @@ app.get("/cards/:id", (req, res) => {
       image = card.image + "/high.webp";
     }
 
-    // card.set is the set this card belongs to. cardCount.official is how many numbered cards it has
-    let set = { id: null, name: null, official: null };
+    // card.set is the set this card belongs to. cardCount.official is how many numbered cards it has.
+    // serie is the series name we looked up above.
+    let set = { id: null, name: null, official: null, serie: result.serie };
     if (card.set) {
       set.id = card.set.id;
       set.name = card.set.name;
@@ -277,11 +340,11 @@ app.get("/cards/:id", (req, res) => {
     if (err.response && err.response.status === 404) {
       return res.status(404).send("Card not found");
     }
+
     console.log(err);
     return res.status(500).send("Could not load the card");
   });
 });
-
 
 app.get("/profile/:username", async (req, res) => {
   const user = req.params.username;

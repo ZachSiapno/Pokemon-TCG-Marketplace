@@ -7,19 +7,22 @@
 <html>
     <head>
         <title>Marketplace</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="/market.css">
     </head>
 
     <body>
         <h1>Marketplace</h1>
         <a href="/">Home</a>
 
-        <h2>Sets</h2>
+        <!-- market.js writes into this line: "N sets in N series" when it works, red error text when it doesn't -->
         <p id="message">Loading sets...</p>
 
-        <div id="sets">
-            <!-- market.js adds one box for each set here -->
+        <div id="series">
+            <!-- market.js adds one section for each series here, and inside it a box for each set -->
         </div>
 
-        <script src="market.js"></script>
+        <!-- keep this at the bottom so the message and series elements above exist when the script runs -->
+        <script src="/market.js"></script>
     </body>
 </html>

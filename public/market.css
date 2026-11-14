@@ -1,0 +1,188 @@
+/*
+    market.css
+
+    Styling for market.html only: each series gets its own rounded box with its name at the top,
+    and the sets of that series sit inside it in rows of five. On a narrower screen the rows get fewer boxes so nothing is squashed.
+
+    market.js builds the boxes with JavaScript, so the rules below find them by where they are
+    (like ".sets > div", every div directly inside a div with the class "sets").
+    The colors match card.css.
+*/
+
+/* ---------- colors: change them here to change the whole page ---------- */
+
+:root {
+    --blue: #1d6fd1;
+    --light-blue: #46c1ee;
+    --dark: #0b2545;
+    --yellow: #ffcb05;
+    --page: #f7f9fc;
+    --white: #ffffff;
+    --muted: #667085;
+    --line: #e3e8f0;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+/* A blue stripe across the top of the page, like the banner on the card page. */
+html {
+    background: var(--page);
+    border-top: 8px solid var(--blue);
+}
+
+/* The page content sits in a column in the middle, up to 1200px wide. */
+body {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    color: var(--dark);
+    line-height: 1.4;
+}
+
+h1 {
+    margin: 8px 0 12px;
+    font-size: 2rem;
+}
+
+a {
+    color: var(--blue);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/*
+    The Home link sits directly inside the body, so this turns just that one into a small rounded button.
+    (The set names are inside boxes, so they stay plain links.)
+*/
+body > a {
+    display: inline-block;
+    padding: 6px 14px;
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-weight: 600;
+}
+
+body > a:hover {
+    background: var(--yellow);
+    border-color: var(--yellow);
+    color: var(--dark);
+    text-decoration: none;
+}
+
+/* The status line. market.js sets its color (black normally, red for errors). */
+#message {
+    margin: 16px 0 8px;
+    font-weight: 600;
+}
+
+/* ---------- one series ---------- */
+
+/* The bubble for a series: a big rounded box with the series name at the top and its sets inside. */
+section {
+    margin-top: 28px;
+    padding: 20px;
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    box-shadow: 0 2px 8px rgba(11, 37, 69, 0.08);
+}
+
+/* The series name, with a thick yellow line under it that is only as wide as the text. */
+section h2 {
+    width: fit-content;
+    margin: 0 0 16px;
+    border-bottom: 4px solid var(--yellow);
+}
+
+/* ---------- the sets in a series ---------- */
+
+/*
+    A grid with exactly 5 columns of equal width (repeat(5, 1fr)).
+    A series with 12 sets fills two full rows of five and then a row with the last two.
+*/
+.sets {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+}
+
+/* One box per set. */
+.sets > div {
+    position: relative;             /* lets the clickable-box trick below stay inside this box */
+    min-height: 160px;
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;         /* logo, name and count stack top to bottom */
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: var(--page);        /* a little darker than the white bubble around it, so the boxes stand out */
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+/* The box lifts a little when the mouse is over it. */
+.sets > div:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(11, 37, 69, 0.15);
+}
+
+/* The JavaScript gives the logo height="60". This keeps every logo the same height and shape. */
+.sets img {
+    height: 60px;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    margin-bottom: 10px;
+}
+
+.sets h3 {
+    margin: 0 0 4px;
+    font-size: 1rem;
+}
+
+.sets h3 a {
+    color: var(--dark);
+}
+
+/*
+    Makes the whole box clickable, not just the set name.
+    The link gets an invisible layer stretched over the entire box (position: absolute, all four sides 0).
+*/
+.sets h3 a::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.sets p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+/* ---------- narrower screens ---------- */
+
+/* Five boxes to a row get cramped on a small screen, so the rows get shorter. */
+@media (max-width: 1000px) {
+    .sets {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .sets {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

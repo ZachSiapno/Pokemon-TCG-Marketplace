@@ -31,14 +31,9 @@
         <!-- hidden until card.js has the card, so nobody sees empty boxes while loading or after an error -->
         <main id="layout" class="layout" hidden>
 
-            <!-- LEFT COLUMN: which set the card is from, then its details table and battle traits -->
+            <!-- LEFT COLUMN: the details table (series, set, number ...) and the battle traits -->
             <section class="left">
-                <div class="glass">
-                    <h2 id="setName"></h2>
-                    <p id="setNumber"></p>
-                </div>
-
-                <!-- card.js adds one row per detail here (rarity, category, illustrator ...) -->
+                <!-- card.js adds one row per detail here (series, set, number, illustrator ...) -->
                 <table id="details" class="panel"></table>
 
                 <!-- Weakness and resistance. card.js shows this box only if the card has either one -->

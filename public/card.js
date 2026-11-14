@@ -1,7 +1,7 @@
 /*
     for card.html
 
-    Shows everything about one card: a big picture, the set it's from, a table of details,
+    Shows everything about one card: a big picture, a table of details (series, set, number ...),
     the weakness and resistance, and its attacks.
     Flow: read the card's id from the address (like /card/swsh3-136), ask our server for that
     card (GET /cards/:id in server.js), then fill in the page.
@@ -10,8 +10,6 @@
         id="cardName"    the big heading, filled in with the card's number and name
         id="message"     the line of text under the heading, only used for errors
         id="layout"      the three columns, hidden until the card has loaded
-        id="setName"     left box: the name of the set the card is from
-        id="setNumber"   left box: the card's number in that set, like 136/189
         id="details"     the empty table that the detail rows get added into
         id="traitsBox"   the weakness and resistance box, shown only if the card has either one
         id="traitLabels" the row of labels in that box (Weakness, Resistance)
@@ -25,8 +23,6 @@
 let cardName = document.getElementById("cardName");
 let message = document.getElementById("message");
 let layout = document.getElementById("layout");
-let setName = document.getElementById("setName");
-let setNumber = document.getElementById("setNumber");
 let detailsTable = document.getElementById("details");
 let traitsBox = document.getElementById("traitsBox");
 let traitLabels = document.getElementById("traitLabels");
@@ -178,13 +174,15 @@ function showCard(card) {
     if (card.set.official) {
         number = card.localId + "/" + card.set.official;
     }
-    setName.textContent = card.set.name;
-    setNumber.textContent = "No. " + number;
 
-    addRow("Rarity", card.rarity);
-    addRow("Category", card.category);
+    // the series is null if the server couldn't find it, and addRow skips anything empty
+    addRow("Series", card.set.serie);
+    addRow("Set", card.set.name);
+    addRow("Number", number);
     addRow("Illustrator", card.illustrator);
     addRow("Regulation mark", card.regulationMark);
+    addRow("Rarity", card.rarity);
+    addRow("Category", card.category);
 
     // join turns a list like ["Colorless"] into text. An empty list becomes "", which is skipped
     addTrait("Weakness", typesText(card.weaknesses));
