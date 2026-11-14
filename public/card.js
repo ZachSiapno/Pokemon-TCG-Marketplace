@@ -11,7 +11,6 @@
         id="message"     the line of text under the heading, only used for errors
         id="layout"      the three columns, hidden until the card has loaded
         id="details"     the empty table that the detail rows get added into
-        id="traitsBox"   the weakness and resistance box, shown only if the card has either one
         id="traitLabels" the row of labels in that box (Weakness, Resistance)
         id="traitValues" the row of values under those labels
         id="picture"     the empty div the card's picture goes into
@@ -24,7 +23,6 @@ let cardName = document.getElementById("cardName");
 let message = document.getElementById("message");
 let layout = document.getElementById("layout");
 let detailsTable = document.getElementById("details");
-let traitsBox = document.getElementById("traitsBox");
 let traitLabels = document.getElementById("traitLabels");
 let traitValues = document.getElementById("traitValues");
 let pictureDiv = document.getElementById("picture");
@@ -75,21 +73,22 @@ function addLine(label, value) {
 }
 
 // Adds one column to the battle traits box: the label on top and its value underneath.
-// The box starts hidden, so the first trait that is added shows it.
+// The box always shows both Weakness and Resistance. If the card has none, "---" is shown instead,
+// so it's clear the card just has nothing there and the page didn't forget to load something.
 function addTrait(label, value) {
-    if (!hasValue(value)) {
-        return;
-    }
-
     let head = document.createElement("td");
     head.textContent = label;
     traitLabels.appendChild(head);
 
     let cell = document.createElement("td");
-    cell.textContent = value;
+    if (hasValue(value)) {
+        cell.textContent = value;
+    } else {
+        cell.textContent = "---";
+        // the "empty" class is what card.css uses to make the dashes grey
+        cell.className = "empty";
+    }
     traitValues.appendChild(cell);
-
-    traitsBox.hidden = false;
 }
 
 // Adds an ability or an attack to the moves section, like:

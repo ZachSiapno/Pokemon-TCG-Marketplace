@@ -144,7 +144,7 @@ h1 {
 
 /* ---------- boxes ---------- */
 
-/* The see-through white box that sits on the blue banner (the type and hp summary). */
+/* The see-through white boxes that sit on the blue banner (set name, summary). */
 .glass {
     padding: 20px;
     text-align: center;
@@ -167,6 +167,16 @@ h1 {
 
 .panel[hidden] {
     display: none;
+}
+
+#setName {
+    margin: 0 0 4px;
+    font-size: 1.25rem;
+}
+
+#setNumber {
+    margin: 0;
+    font-size: 1.1rem;
 }
 
 /* ---------- left column: the details table ---------- */
@@ -220,6 +230,12 @@ h1 {
 #traitValues td {
     padding: 10px 0 0;
     font-weight: 700;
+}
+
+/* The "---" shown when a card has no weakness or resistance: grey and not bold, so it reads as empty. */
+#traitValues td.empty {
+    color: var(--muted);
+    font-weight: 400;
 }
 
 /* ---------- middle column: the picture and the moves ---------- */
