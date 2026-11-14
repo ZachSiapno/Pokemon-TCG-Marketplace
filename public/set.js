@@ -17,7 +17,7 @@ let setId = window.location.pathname.split("/")[2];
 function addCard(card) {
     let box = document.createElement("div");
 
-    // Both the picture and the name, link to this
+    // Both the picture and the name link to this card's own page, like /card/swsh3-136
     let cardAddress = "/card/" + encodeURIComponent(card.id);
 
     // Some cards won't have an image so only add one and display it if it exists.
@@ -31,7 +31,6 @@ function addCard(card) {
         picture.addEventListener("error", () => {
             picture.style.display = "none";
         });
-        box.appendChild(picture);
         // the picture goes inside a link so that clicking it displays the card's page.
         let pictureLink = document.createElement("a");
         pictureLink.href = cardAddress;
@@ -39,11 +38,12 @@ function addCard(card) {
         box.appendChild(pictureLink);
     }
 
+    // the name is a link too. textContent (not innerHTML) so a weird card name can never be treated as HTML
     let name = document.createElement("p");
     let nameLink = document.createElement("a");
     nameLink.href = cardAddress;
-    nameLink.textContent = card.name
-    name.textContent = card.name;
+    nameLink.textContent = card.name;
+    name.appendChild(nameLink);
     box.appendChild(name);
 
     // display the card's number within a set.
