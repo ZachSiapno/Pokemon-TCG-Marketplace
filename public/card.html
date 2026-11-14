@@ -2,36 +2,71 @@
  Details for one card.
  set.html links to /card/swsh3-136 and the server (the /card/:id route in server.js) sends this page.
  card.js reads the card's id from the end of the address and fills in everything below.
+ card.css is the styling: the blue banner and the three columns.
  -->
 <!DOCTYPE html>
 <html>
     <head>
         <title>Card</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="/card.css">
     </head>
 
     <body>
-        <!-- card.js changes this to go back to the card's own set once it knows which set that is -->
-        <a id="backLink" href="/market.html">Back to sets</a>
+        <!-- the blue picture-like strip across the top of the page (see .banner in card.css) -->
+        <div class="banner"></div>
 
-        <!-- card.js replaces this with the card's real name -->
+        <!-- the bar at the top with links to the other pages -->
+        <nav class="topbar">
+            <a href="/">Home</a>
+            <a href="/market.html">Marketplace</a>
+        </nav>
+
+        <!-- card.js fills this heading with the card's number and name, like "155 - Jirachi ex" -->
         <h1 id="cardName">Card</h1>
 
         <!-- card.js writes into this line: nothing when it works, red error text when it doesn't -->
         <p id="message">Loading card...</p>
 
-        <!-- picture on the left, table of details on the right. flex puts them side by side
-             and flex-wrap drops the table under the picture on a narrow screen -->
-        <div style="display: flex; flex-wrap: wrap; gap: 30px;">
-            <div id="picture"></div>
+        <!-- hidden until card.js has the card, so nobody sees empty boxes while loading or after an error -->
+        <main id="layout" class="layout" hidden>
 
-            <div>
-                <!-- card.js adds one row per detail here (set, rarity, hp ...) -->
-                <table id="details" border="1" cellpadding="6"></table>
-            </div>
-        </div>
+            <!-- LEFT COLUMN: which set the card is from, then its details table and battle traits -->
+            <section class="left">
+                <div class="glass">
+                    <h2 id="setName"></h2>
+                    <p id="setNumber"></p>
+                </div>
 
-        <!-- card.js adds the card's abilities and attacks here -->
-        <div id="moves"></div>
+                <!-- card.js adds one row per detail here (rarity, category, illustrator ...) -->
+                <table id="details" class="panel"></table>
+
+                <!-- Weakness and resistance. card.js shows this box only if the card has either one -->
+                <div id="traitsBox" class="panel traits" hidden>
+                    <h2>Battle Traits</h2>
+                    <table>
+                        <tr id="traitLabels"></tr>
+                        <tr id="traitValues"></tr>
+                    </table>
+                </div>
+            </section>
+
+            <!-- MIDDLE COLUMN: the big picture, then the abilities and attacks -->
+            <section class="center">
+                <div id="picture"></div>
+
+                <!-- card.js adds the card's abilities and attacks here -->
+                <div id="moves"></div>
+            </section>
+
+            <!-- RIGHT COLUMN: pokedex number, type, stage and hp, then the back button -->
+            <section class="right">
+                <div id="summary" class="glass"></div>
+
+                <!-- card.js changes this to go back to the card's own set -->
+                <a id="backLink" class="button" href="/market.html">Back to sets</a>
+            </section>
+        </main>
 
         <!-- keep this at the bottom so the elements above exist when the script runs -->
         <script src="/card.js"></script>

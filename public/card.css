@@ -1,0 +1,347 @@
+/*
+    card.css
+
+    Styling for card.html only: a blue banner across the top with the card's name,
+    then three columns. The big picture is in the middle, the set and details on the left,
+    and the pokedex number, type and hp on the right.
+
+    card.js builds most of the boxes with JavaScript, so the rules below find them by their id
+    (like #details) or by where they are (like #moves h3) instead of by class names.
+*/
+
+/* ---------- colors: change them here to change the whole page ---------- */
+
+:root {
+    --blue: #1d6fd1;
+    --light-blue: #46c1ee;
+    --dark: #0b2545;
+    --pink: #ee4b6a;
+    --dark-pink: #cf3453;
+    --page: #f7f9fc;
+    --white: #ffffff;
+    --muted: #667085;
+    --line: #e3e8f0;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    color: var(--dark);
+    background: var(--page);
+    line-height: 1.4;
+}
+
+/* ---------- the banner and top bar ---------- */
+
+/*
+    The blue strip behind the top of the page. It is a gradient (one color fading into another)
+    plus two soft light spots, so it looks like a picture without needing an image file.
+    position: absolute takes it out of the normal flow so the content can sit on top of it.
+*/
+.banner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 470px;
+    z-index: 0;
+    background:
+        radial-gradient(circle at 15% 80%, rgba(255, 255, 255, 0.28), transparent 45%),
+        radial-gradient(circle at 85% 20%, rgba(255, 255, 255, 0.22), transparent 40%),
+        linear-gradient(135deg, var(--blue), var(--light-blue));
+}
+
+/* Everything else is lifted above the banner (z-index bigger than the banner's 0). */
+.topbar,
+h1,
+#message,
+.layout {
+    position: relative;
+    z-index: 1;
+}
+
+.topbar {
+    display: flex;
+    gap: 28px;
+    padding: 16px 24px;
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.topbar a {
+    color: var(--dark);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.topbar a:hover {
+    text-decoration: underline;
+}
+
+/* The card's name, big and white on the blue banner. */
+h1 {
+    margin: 32px 16px 8px;
+    text-align: center;
+    color: var(--white);
+    font-size: 2rem;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+/*
+    The status line. card.js sets its color (black normally, red for errors).
+    It is empty when the card loaded fine, and when it has an error it gets a white pill behind it
+    so red text is easy to read on the blue banner.
+*/
+#message {
+    width: fit-content;
+    margin: 0 auto 16px;
+    font-weight: 700;
+}
+
+#message:empty {
+    display: none;
+}
+
+#message:not(:empty) {
+    padding: 8px 16px;
+    background: var(--white);
+    border-radius: 999px;
+}
+
+/* ---------- the three columns ---------- */
+
+/*
+    A grid with three columns: the left and right ones share the extra space (1fr each)
+    and the middle one is a fixed 360px, the width of the card picture.
+    align-items: start stops the shorter columns from stretching down to match the tallest.
+*/
+.layout {
+    display: grid;
+    grid-template-columns: 1fr 360px 1fr;
+    gap: 28px;
+    align-items: start;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 12px 24px 48px;
+}
+
+/* A [hidden] element stays hidden even though .layout sets display: grid. */
+.layout[hidden] {
+    display: none;
+}
+
+/* Each column stacks its boxes top to bottom with a gap between them. */
+.left,
+.center,
+.right {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* ---------- boxes ---------- */
+
+/* The see-through white boxes that sit on the blue banner (set name, summary). */
+.glass {
+    padding: 20px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 16px;
+    backdrop-filter: blur(6px);     /* blurs the banner behind the box, like frosted glass */
+}
+
+/* The plain white boxes that sit below the banner (details table, battle traits). */
+.panel {
+    width: 100%;
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    border-collapse: separate;      /* lets the table have rounded corners */
+    border-spacing: 0;
+    overflow: hidden;
+}
+
+.panel[hidden] {
+    display: none;
+}
+
+#setName {
+    margin: 0 0 4px;
+    font-size: 1.25rem;
+}
+
+#setNumber {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+/* ---------- left column: the details table ---------- */
+
+/* Each row is a label on the left and its value on the right, with a thin line between rows. */
+#details th,
+#details td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+}
+
+#details th {
+    text-align: left;
+}
+
+#details td {
+    text-align: right;
+}
+
+#details tr:last-child th,
+#details tr:last-child td {
+    border-bottom: none;
+}
+
+/* ---------- left column: battle traits ---------- */
+
+.traits {
+    padding: 14px 16px 18px;
+    text-align: center;
+}
+
+.traits h2 {
+    margin: 0 0 8px;
+    font-size: 1rem;
+    color: #8c1d40;
+}
+
+.traits table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* The small labels (Weakness, Resistance) on top and the values under them. */
+#traitLabels td {
+    padding: 8px 0;
+    color: var(--muted);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+}
+
+#traitValues td {
+    padding: 10px 0 0;
+    font-weight: 700;
+}
+
+/* ---------- middle column: the picture and the moves ---------- */
+
+/*
+    The JavaScript gives the picture a height attribute. These rules replace it:
+    the picture fills the column and keeps the 5 wide by 7 tall shape of a Pokemon card.
+    aspect-ratio saves that room before the picture finishes loading, so the page doesn't jump.
+*/
+#picture img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 5 / 7;
+    object-fit: contain;
+    border-radius: 16px;
+    box-shadow: 0 14px 30px rgba(11, 37, 69, 0.35);
+}
+
+/* One ability or attack. */
+#moves > div {
+    margin-bottom: 8px;
+}
+
+/*
+    The heading line holds the move's name on the left and its damage on the right.
+    flex with space-between pushes the two pieces to opposite ends of the line.
+*/
+#moves h3 {
+    display: flex;
+    justify-content: space-between;
+    margin: 0 0 6px;
+    padding-bottom: 6px;
+    font-size: 1.25rem;
+    border-bottom: 1px solid var(--line);
+}
+
+#moves p {
+    margin: 4px 0;
+}
+
+/* The "Cost: ..." line is smaller and grey. It is the p with a class added by card.js. */
+#moves .cost {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+/* ---------- right column: the summary box and the back button ---------- */
+
+#summary {
+    text-align: left;
+}
+
+#summary p {
+    margin: 0 0 8px;
+    font-weight: 600;
+}
+
+#summary p:last-child {
+    margin-bottom: 0;
+}
+
+/* The hp line: a small "HP" and then the number in big letters. */
+#summary .hp {
+    font-size: 0.8rem;
+}
+
+#summary .hp strong {
+    font-size: 2rem;
+}
+
+/* The pink button. It is a link made to look like a button. */
+.button {
+    display: block;
+    padding: 12px 16px;
+    text-align: center;
+    color: var(--white);
+    font-weight: 700;
+    text-decoration: none;
+    background: var(--pink);
+    border-radius: 10px;
+}
+
+.button:hover {
+    background: var(--dark-pink);
+}
+
+/* ---------- narrow screens ---------- */
+
+/*
+    Under 900px wide there isn't room for three columns, so they stack in one column.
+    order: -1 moves the middle column (the picture) to the top.
+*/
+@media (max-width: 900px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+
+    .center {
+        order: -1;
+    }
+
+    /* The see-through boxes are made for sitting on the blue banner. Down here the page is
+       white, so they get a solid white background and a thin border to stay visible. */
+    .glass {
+        background: var(--white);
+        border-color: var(--line);
+        backdrop-filter: none;
+    }
+
+    #picture img {
+        max-width: 360px;
+        margin: 0 auto;
+    }
+}
