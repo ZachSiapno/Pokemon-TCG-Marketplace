@@ -2,6 +2,7 @@ let express = require("express");
 let axios = require("axios");
 let { Pool } = require("pg");
 let env = require("./env.json");
+/* New inputs added to use for authentication based on the class notes. https://www.cs.drexel.edu/~nkl43/cs375/readings/5a_auth/ */
 let cookieParser = require("cookie-parser");
 let argon2 = require("argon2");
 let crypto = require("crypto");
@@ -20,6 +21,72 @@ let pool = new Pool(env);
 pool.connect().then(() => {
   console.log("Connected to database");
 });
+
+/*
+  SESSIONS: TOKENS AND COOKIES
+*/
+
+let tokens = {};
+
+let tokenLifetime = 60 * 60 * 1000;
+
+let cookieOptions = {
+  httpOnly: true,
+  sameSite: "strict",
+  secure: process.env.NODE_ENV == "production"
+}
+
+// Make a random 32 byte token; uses the exact line from https://www.cs.drexel.edu/~nkl43/cs375/readings/5a_auth/3_sessions/
+function makeToken() {
+  return crypto.randomBytes(32).toString("hex");
+}
+
+// Log a user in: make a token, save it, and put it in a cookie on the response
+function startSession(res, userId) {
+  let token = makeToken();
+  tokens[token] = { userId: userId, createdAt: Date.now() };
+  res.cookie("token", token, cookieOptions);
+}
+
+
+// Look up a token. Return the user's id, or null if the token is missing, fake or too old.
+function getUserId(token) {
+  if (token === undefined || !tokens.hasOwnProperty(token)) {
+    return null;
+  }
+
+  // The cookie's own expiry can be edited by the user, so we check the age ourselves
+  if (Date.now() - tokens[token].createdAt > tokenLifetime) {
+    delete tokens[token];
+    return null;
+  }
+
+  return tokens[token].userId;
+}
+
+// Middleware: put this before a route that needs a logged in user.
+// If the user is not logged in, it sends 403 and the route never runs.
+// If they are, it saves their id in req.userId and calls next() to continue to the route.
+let authMiddleware = (req, res, next) => {
+  let userId = getUserId(req.cookies.token);
+
+  if (userId === null) {
+    return res.status(403).send("Please log in first");
+  }
+
+  req.userId = userId;
+  next();
+};
+
+// Every hour, a.k.a. when a user session expires, delete tokens that are too old.
+setInterval(() => {
+  for (let token in tokens) {
+    if (Date.now() - tokens[token].createdAt > tokenLifetime) {
+      delete tokens[token];
+    }
+  }
+}, 60 * 60 * 1000);
+
 /*
   SIGNUP AND LOGIN PAGES
 */
