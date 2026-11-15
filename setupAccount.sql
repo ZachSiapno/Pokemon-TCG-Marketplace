@@ -4,7 +4,7 @@ CREATE TABLE users (
 	id SERIAL PRIMARY KEY,
 	username VARCHAR(30),
 	email VARCHAR(255),
-	password VARCHAR(255)
+	password_hash TEXT
 );
 
 CREATE TABLE follows (

@@ -2,6 +2,9 @@ let express = require("express");
 let axios = require("axios");
 let { Pool } = require("pg");
 let env = require("./env.json");
+let cookieParser = require("cookie-parser");
+let argon2 = require("argon2");
+let crypto = require("crypto");
 
 let hostname = "localhost";
 let port = 3000;
@@ -9,13 +12,14 @@ let app = express();
 
 //app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(cookieParser());   // lets us read cookies with req.cookies
+
 app.use(express.static("public"));
 
 let pool = new Pool(env);
 pool.connect().then(() => {
   console.log("Connected to database");
 });
-
 /*
   SIGNUP AND LOGIN PAGES
 */
@@ -249,7 +253,7 @@ app.get("/card/:id", (req, res) => {
   res.sendFile(__dirname + "/public/card.html");
 });
 
-// GET /cards/:id (for example /cards/swsh3-136)
+// GET /cards/:id
 // Returns the details of one card. Unlike the card list inside a set, one card from TCGdex has
 // everything: rarity, hp, attacks and so on. TCGdex sends more than the page needs
 // (like prices), so this builds a smaller object with only what card.js shows.
