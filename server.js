@@ -97,31 +97,38 @@ app.post("/signup", async (req, res) => {
 // FUTURE NOTE CHECK FOR DUPLICATE ACCOUNTS NOT ADDED YET!!!!!!!!!
 // FUTURE NOTE 2 ADD VALIDATION FOR EMAILS ETC
 // ADD SESSION STORAGE WHEN SIMILAR TO LOGIN WHEN SIGNUP
+  if (typeof username !== "string" || typeof password !== "string" ||
+      username.length < 1 || username.length > 25 ||
+      password.length < 1 || password.length > 100) {
+    return res.status(400).send("Invalid username or password");
+  }
   if (password !== confirmPassword) {
     console.log("Password does not match the confirmed password")
     return res.status(400).send("Passwords do not match");
   }
 
-  // Account register
+  // Before anything, we first check if the username is not already taken
   try {
-    await pool.query(
-      `INSERT INTO users (username, email, password) VALUES($1, $2, $3)`,
+    const existing = await pool.query(
+      `SELECT id FROM users WHERE username = $1`,
+      [username]
+    );
+    if (existing.rows.length > 0) {
+      return res.status(400).send("That username is already taken");
+    }
+
+    const passwordHash = await argon2.hash(password);
+
+    const created = await pool.query(
+      `INSERT INTO users (username, email, password_hash) VALUES($1, $2, $3) RETURNING id, username`,
       [username, email, password]
-    )
+    );
+    console.log("Account created!");
 
-  console.log("Account created!");
-  const userData = await loginUser(username, password);
+    const user = created.rows[0];
+    startSession(res, user.id);
 
-  // Account login
-  try {
-    if (!userData) { return res.status(401).send("Invalid username or password"); }
-  
-    return res.status(201).json(userData);
-  } catch (err) {
-    console.log(err);
-    return res.status(500).send("Login failed");
-  }
-
+    return res.status(201).json(user);
   } catch (err) {
     console.log(err);
     return res.status(500).send("Failed to create account");
@@ -129,16 +136,23 @@ app.post("/signup", async (req, res) => {
 });
 
 
-
+// POST /login
 app.post("/login", async (req, res) => {
   const { username, password } = req.body || {};
 
   // FUTURE NOTE 2 ADD VALIDATION FOR LOGINS ETC
+  if (typeof username !== "string" || typeof password !== "string") {
+    return res.status(400).send("Invalid username or password");
+  }
+
   const userData = await loginUser(username, password);
 
   try {
     if (!userData) { return res.status(401).send("Invalid username or password"); }
-  
+
+    // Logged in: make a token and send it as a cookie
+    startSession(res, userData.id);
+
     return res.status(201).json(userData);
   } catch (err) {
     console.log(err);
@@ -147,22 +161,57 @@ app.post("/login", async (req, res) => {
 });
 
 
+// POST /logout
+app.post("/logout", (req, res) => {
+  let token = req.cookies.token;
+
+  if (token !== undefined) {
+    delete tokens[token];
+  }
+
+  res.clearCookie("token", cookieOptions);
+  res.json({ message: "Success" });
+});
+
+// GET /me
+// This function the browser who is logged in, according to the token cookie.
+// authMiddleware already made sure the user is logged in and saved their id in req.userId.
+app.get("/me", authMiddleware, (req, res) => {
+  pool.query("SELECT id, username FROM users WHERE id = $1", [req.userId])
+    .then((result) => {
+      if (result.rows.length === 0) {
+        return res.status(403).send("Please log in first");
+      }
+      res.json(result.rows[0]);
+    })
+    .catch((error) => {
+      console.log(error);
+      res.status(500).send("Could not load your account");
+    });
+});
+
+
 
 async function loginUser(username, password) {
   try {
+    // Find user by username only.
     const data = await pool.query(
-      `SELECT id, username, password 
+      `SELECT id, username, password_hash
       FROM users 
       WHERE username=$1 
-      AND password=$2 
       LIMIT 1`,
-      [username, password]
+      [username]
     )  
 
     if (data.rows.length === 0) {
       return null;
     }
     const userConfirmed = data.rows[0];
+
+    const matches = await argon2.verify(userConfirmed.password_hash, password);
+    if (!matches) {
+      return null;
+    }
     console.log("login confirmed");
 
     return {
