@@ -1,0 +1,37 @@
+<!--
+ Card catalog for one set.
+ market.html links to /set/swsh3 and the server (the /set/:id route in server.js) sends this page.
+ set.js reads the set's id from the end of the address. set.css is the styling.
+ -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Set</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="/set.css">
+    </head>
+
+    <body>
+        <a href="/market.html">Back to sets</a>
+
+        <h1 id="setName">Set</h1>
+
+        <!-- the label, the text field and the button sit together in one box (see .search in set.css) -->
+        <div class="search">
+            <label for="search">Search by name</label>
+            <input type="text"
+                id="search"
+            >
+            <button id="searchButton"> SEARCH </button>
+        </div>
+
+        <p id="message">Loading cards...</p>
+
+        <!-- set.js adds one box for each card here. set.css lines them up five to a row.
+             Keep the opening and closing tag touching: any space between them stops CSS from treating
+             the div as empty, and then an empty white box shows while there are no cards -->
+        <div id="cards"></div>
+
+        <script src="/set.js"></script>
+    </body>
+</html>
