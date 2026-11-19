@@ -1,0 +1,252 @@
+/*
+    set.css
+
+    Styling for set.html only: the search bar sits in its own white box, and the cards of the set
+    sit under it in rows of five, each card in a box of its own. The white box around all the cards
+    works like the series boxes on market.html. The colors match market.css and card.css.
+
+    set.js builds the card boxes with JavaScript, so the rules below find them by where they are
+    (like "#cards > div", every div directly inside the element with id="cards").
+*/
+
+/* ---------- colors: change them here to change the whole page ---------- */
+
+:root {
+    --blue: #1d6fd1;
+    --dark-blue: #1857a8;
+    --dark: #0b2545;
+    --yellow: #ffcb05;
+    --page: #f7f9fc;
+    --white: #ffffff;
+    --muted: #667085;
+    --line: #e3e8f0;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+/* A blue stripe across the top of the page, like the other pages. */
+html {
+    background: var(--page);
+    border-top: 8px solid var(--blue);
+}
+
+/* The page content sits in a column in the middle, up to 1200px wide. */
+body {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    color: var(--dark);
+    line-height: 1.4;
+}
+
+h1 {
+    margin: 8px 0 12px;
+    font-size: 2rem;
+}
+
+a {
+    color: var(--blue);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/*
+    The "Back to sets" link sits directly inside the body, so this turns just that one
+    into a small rounded button. (The card names are inside boxes, so they stay plain links.)
+*/
+body > a {
+    display: inline-block;
+    padding: 6px 14px;
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-weight: 600;
+}
+
+body > a:hover {
+    background: var(--yellow);
+    border-color: var(--yellow);
+    color: var(--dark);
+    text-decoration: none;
+}
+
+/* ---------- the search box ---------- */
+
+/*
+    A white rounded box holding the label, the text field and the button.
+    flex with flex-wrap lets the field and button sit side by side, and drop under each other on a phone.
+*/
+.search {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin: 16px 0 8px;
+    padding: 16px 20px;
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    box-shadow: 0 2px 8px rgba(11, 37, 69, 0.08);
+}
+
+/* width: 100% makes the label fill its own line, so the field and button start on the next one. */
+.search label {
+    width: 100%;
+    font-weight: 600;
+}
+
+.search input {
+    flex: 1 1 240px;
+    max-width: 420px;
+    padding: 10px 12px;
+    font-size: 1rem;
+    color: var(--dark);
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+
+.search input:focus {
+    outline: 3px solid var(--yellow);
+    border-color: var(--blue);
+}
+
+.search button {
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--white);
+    background: var(--blue);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.search button:hover {
+    background: var(--dark-blue);
+}
+
+/* The status line ("Showing 8 of 102 cards", errors). set.js sets its color (black normally, red for errors). */
+#message {
+    margin: 16px 0 8px;
+    font-weight: 600;
+}
+
+/* ---------- the cards ---------- */
+
+/*
+    The big white box around all the cards, and also a grid with exactly 5 columns of equal width.
+    A set with 12 cards fills two full rows of five and then a row with the last two.
+    When nothing is in it (while loading, after an error or a search with no matches) it is hidden,
+    so there is never an empty white box.
+*/
+#cards {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin-top: 16px;
+    padding: 20px;
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    box-shadow: 0 2px 8px rgba(11, 37, 69, 0.08);
+}
+
+#cards:empty {
+    display: none;
+}
+
+/* One box per card. */
+#cards > div {
+    position: relative;             /* lets the clickable-box trick below stay inside this box */
+    padding: 12px;
+    background: var(--page);        /* a little darker than the white box around it, so each card stands out */
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+/* The box lifts a little when the mouse is over it. */
+#cards > div:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(11, 37, 69, 0.15);
+}
+
+/*
+    The JavaScript gives the picture height="200". These rules replace it:
+    the picture fills the box and keeps the 5 wide by 7 tall shape of a Pokemon card.
+    aspect-ratio saves that room before the picture loads (the pictures load as you scroll),
+    so the page doesn't jump around.
+*/
+#cards img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 5 / 7;
+    object-fit: contain;
+    margin-bottom: 10px;
+    border-radius: 8px;
+}
+
+/* The first <p> in each box is the card's name, the second is "No. 12". */
+#cards p {
+    margin: 0;
+    overflow-wrap: anywhere;        /* a very long name wraps instead of pushing the box wider */
+}
+
+#cards p:first-of-type {
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+#cards p + p {
+    margin-top: 2px;
+    color: var(--muted);
+    font-size: 0.85rem;
+}
+
+#cards p a {
+    color: var(--dark);
+}
+
+/*
+    Makes the whole box clickable, not just the card's name or picture.
+    The name link gets an invisible layer stretched over the entire box (position: absolute, all four sides 0).
+*/
+#cards p a::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+/* ---------- narrower screens ---------- */
+
+/* Five cards to a row get cramped on a small screen, so the rows get shorter. */
+@media (max-width: 1000px) {
+    #cards {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 800px) {
+    #cards {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 560px) {
+    #cards {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 14px;
+        gap: 12px;
+    }
+}
