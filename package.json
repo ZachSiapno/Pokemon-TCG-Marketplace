@@ -5,7 +5,11 @@
   "scripts": {
     "start": "node server.js",
     "setup": "psql -U postgres -f setupAccount.sql",
-    "reset": "psql -U postgres -d pokemontcg -f resetAccounts.sql"
+    "reset": "psql -U postgres -d pokemontcg -f resetAccounts.sql",
+    "setupCards": "psql -U postgres -d pokemontcg -f cardsSetup.sql",
+    "importCards": "node importCards.js",
+    "setupInventory": "psql -U postgres -d pokemontcg -f inventorySetup.sql"
+
   },
   "dependencies": {
     "argon2": "^0.45.2",
