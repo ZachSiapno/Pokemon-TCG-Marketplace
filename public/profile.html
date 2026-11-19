@@ -6,15 +6,43 @@
 
 
     <body>
+        <div class="nav-links">
+            <li><a href="/"> Home </a></li>
+            <li><a href="profile.html"> Profile </a></li>
+            <li><a href="market.html"> Market </a></li>
+            <li><a href=""> News </a></li>
+        </div>
+        
         <h1 id="name"></h1>
 
         <div id="followers"></div>
         <div id="following"></div>
 
-        <button id="followUnfollow"></button>
+        <div id="followUnfollow"></div>
 
         <div id="error"></div>
 
+        <div class="tabButtons">
+            <button id="displayTab">Display</button>
+            <button id="collectionTab">Collection</button>
+            <button id="tradesTab">Trades</button>
+        </div>
+
+        <main>
+            <div id="display">
+                Featured Cards Here
+            </div>
+
+            <div id="collection" style="display: none;">
+                Collection Here
+            </div>
+
+            <div id="trades" style="display: none;">
+                Trades requests here
+            </div>
+        </main>
+
         <script src="./js/profile.js"></script>
+    
     </body>
 </html>

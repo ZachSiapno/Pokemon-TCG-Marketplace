@@ -15,6 +15,12 @@ CREATE TABLE follows (
 	CHECK (follower_id <> following_id)
 );
 
+CREATE TABLE posts (
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(id),
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 -- Every Pokemon card copied over from TCGdex (filled in by importCards.js)
 CREATE TABLE cards (

@@ -468,6 +468,7 @@ app.get("/cards/:id", (req, res) => {
 
 app.get("/profile/:username", async (req, res) => {
   const user = req.params.username;
+  const viewerId = Number(req.query.viewerId);
 
   try {
     const userData = await pool.query(
@@ -485,7 +486,22 @@ app.get("/profile/:username", async (req, res) => {
     const id = userData.rows[0].id;
     const username = userData.rows[0].username;
 
-    const followerData = await pool.query( // YOUR NUMBER OF FOLLOWERS
+    let isFollowing = false;
+
+    if (viewerId && viewerId !== id) {
+      const checkFollowing = await pool.query(
+        `SELECT 1
+        FROM follows
+        WHERE follower_id=$1
+        AND following_id=$2
+        `,
+        [viewerId, id]
+      );
+
+      isFollowing = checkFollowing.rows.length > 0;
+    }
+
+    const followerData = await pool.query( // NUMBER OF FOLLOWERS
       `SELECT COUNT(*) AS follower_count
       FROM follows
       WHERE following_id=$1
@@ -509,7 +525,8 @@ app.get("/profile/:username", async (req, res) => {
       id: id,
       username: username,
       followerCount: followerCount,
-      followingCount: followingCount
+      followingCount: followingCount,
+      isFollowing: isFollowing
     });
 
   } catch (err) {
@@ -517,6 +534,93 @@ app.get("/profile/:username", async (req, res) => {
     return res.status(500).send("Server error");
   }
 });
+
+
+
+app.post("/follow", async (req, res) => {
+  const { follower_id, following_id } = req.body;
+
+  try {
+    await pool.query(
+      `INSERT INTO follows (follower_id, following_id)
+      VALUES ($1, $2)
+      ON CONFLICT DO NOTHING
+      `,
+      [follower_id, following_id]
+    );
+    res.sendStatus(200);
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+});
+
+
+
+app.post("/unfollow", async (req, res) => {
+  const { follower_id, following_id } = req.body;
+
+  try {
+    await pool.query(
+      `DELETE FROM follows
+      WHERE follower_id=$1
+      AND following_id=$2
+      `,
+      [follower_id, following_id]
+    );
+    res.sendStatus(200);
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+});
+
+
+
+app.post("/posts", async (req, res) => {
+    const { user_id, content } = req.body;
+
+    try {
+        await pool.query(
+            `INSERT INTO posts (user_id, content)
+             VALUES ($1, $2)
+            `,
+            [user_id, content]
+        );
+
+        res.sendStatus(201);
+    } catch (err) {
+        console.log(err);
+        res.sendStatus(500);
+    }
+});
+
+
+
+app.get("/posts", async (req, res) => {
+  try {
+    const data = await pool.query(
+      `SELECT
+          posts.id,
+          users.username,
+          posts.content,
+          posts.created_at
+        FROM posts
+        JOIN users
+        ON posts.user_id = users.id
+        ORDER BY posts.created_at DESC
+        LIMIT 20
+        `
+    );
+
+      res.json(data.rows);
+  } catch (err) {
+      console.log(err);
+      res.sendStatus(500);
+  }
+});
+
+
 
 app.listen(port, hostname, () => {
   console.log(`http://${hostname}:${port}`);
