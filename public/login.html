@@ -1,44 +1,47 @@
 <!DOCTYPE html>
 <html>
     <head>
-
+        <link rel="stylesheet" href="site.css">
     </head>
 
     <body>
-        <h1>Create an Account</h1>
+        <div class="auth-container">
+            <h1>Create an Account</h1>
 
-        <label for="username">Username</label>
-        <br>
-        <input type="text"
-            id="username"
-            required
-        >
+            <label for="username">Username</label>
+            <br>
+            <input type="text"
+                id="username"
+                required
+            >
 
-        <br><br>
-        <label for="password">Password</label>
+            <br><br>
+            <label for="password">Password</label>
 
-        <br>
-        <input type="password"
-            id="password"
-            required
-        >
+            <br>
+            <input type="password"
+                id="password"
+                required
+            >
 
-        <br><br>
-        <button id="login"> LOGIN </button>
+            <br><br>
+            <button id="login"> LOGIN </button>
 
-        <br>
+            <br>
 
-        <div id="error"></div>
-        
-        <p>
-            Dont have an account?
-            <a href="signup.html">Register</a>
-        </p>
+            <div id="error"></div>
+            
+            <p>
+                Dont have an account?
+                <a href="signup.html">Register</a>
+            </p>
 
-        <p>
-            Forgot your password?
-            <a href="forgot.html">forget</a>
-        </p>
+            <p>
+                Forgot your password?
+                <a href="forgot.html">forget</a>
+            </p>
+
+        </div>
 
         <script src="./js/loginPage.js"></script>
     </body>

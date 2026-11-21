@@ -668,31 +668,6 @@ app.get("/users/:username/trades", async (req, res) => {
 
 
 
-app.get("/posts", async (req, res) => {
-  try {
-    const data = await pool.query(
-      `SELECT
-          posts.id,
-          users.username,
-          posts.content,
-          posts.created_at
-        FROM posts
-        JOIN users
-        ON posts.user_id = users.id
-        ORDER BY posts.created_at DESC
-        LIMIT 20
-        `
-    );
-
-      res.json(data.rows);
-  } catch (err) {
-      console.log(err);
-      res.sendStatus(500);
-  }
-});
-
-
-
 app.listen(port, hostname, () => {
   console.log(`http://${hostname}:${port}`);
 });
