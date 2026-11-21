@@ -17,8 +17,19 @@ CREATE TABLE follows (
 
 CREATE TABLE posts (
     id SERIAL PRIMARY KEY,
+
     user_id INT REFERENCES users(id),
+
     content TEXT NOT NULL,
+
+    post_type VARCHAR(20)
+        DEFAULT 'post',
+
+    trade_offer TEXT,
+    trade_want TEXT,
+
+    trade_status VARCHAR(20)
+        DEFAULT 'open',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

@@ -72,7 +72,9 @@ const tradesTab = document.getElementById("tradesTab");
 
 const display = document.getElementById("display");
 const collection = document.getElementById("collection");
+
 const trades = document.getElementById("trades");
+const tradePostsContainer = document.getElementById("tradePosts");
 
 function showTab(selectedTab) {
     display.style.display = "none";
@@ -90,6 +92,51 @@ collectionTab.addEventListener("click", () => {
     showTab(collection);
 });
 
-tradesTab.addEventListener("click", () => {
+tradesTab.addEventListener("click", async () => {
     showTab(trades);
+
+    try {
+        const response = await fetch(`/users/${username}/trades`);
+
+        if (!response.ok) {
+            throw new Error("Failed to load trades");
+        }
+
+        const tradePosts = await response.json();
+
+        tradePostsContainer.innerHTML = "";
+
+        if (tradePosts.length === 0) {
+            tradePostsContainer.innerHTML = "<p>No trade posts yet.</p>";
+            return;
+        }
+
+        tradePosts.forEach(post => {
+            const postDiv = document.createElement("div");
+
+            postDiv.classList.add("trade-post");
+
+            postDiv.innerHTML = `
+                <h3>Trade Request</h3>
+
+                <p>${post.content}</p>
+
+                <strong>Offering:</strong>
+                <p>${post.trade_offer || "Nothing listed"}</p>
+
+                <strong>Looking For:</strong>
+                <p>${post.trade_want || "Nothing listed"}</p>
+
+                <small>
+                    ${new Date(post.created_at).toLocaleString()}
+                </small>
+            `;
+
+            tradePostsContainer.appendChild(postDiv);
+        });
+
+    } catch (error) {
+        console.error(error);
+        tradePostsContainer.innerHTML = "<p>Failed to load trade posts.</p>";
+    }
 });

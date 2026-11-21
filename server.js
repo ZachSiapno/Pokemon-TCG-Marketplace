@@ -577,22 +577,93 @@ app.post("/unfollow", async (req, res) => {
 
 
 
-app.post("/posts", async (req, res) => {
-    const { user_id, content } = req.body;
+app.get("/posts", async (req, res) => {
+  try {
+    const data = await pool.query(
+      `
+      SELECT
+        posts.id,
+        users.username,
+        posts.content,
+        posts.post_type,
+        posts.trade_offer,
+        posts.trade_want,
+        posts.created_at
+      FROM posts
+      JOIN users
+      ON posts.user_id = users.id
+      ORDER BY posts.created_at DESC
+      LIMIT 20
+      `
+    );
 
-    try {
-        await pool.query(
-            `INSERT INTO posts (user_id, content)
-             VALUES ($1, $2)
-            `,
-            [user_id, content]
-        );
+    res.json(data.rows);
 
-        res.sendStatus(201);
-    } catch (err) {
-        console.log(err);
-        res.sendStatus(500);
-    }
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+});
+
+
+
+app.post("/trade-posts", async (req, res) => {
+    const {
+        userId,
+        content,
+        tradeOffer,
+        tradeWant
+    } = req.body;
+
+    await pool.query(
+        `
+        INSERT INTO posts
+        (
+            user_id,
+            post_type,
+            content,
+            trade_offer,
+            trade_want
+        )
+        VALUES
+        (
+            $1,
+            'trade',
+            $2,
+            $3,
+            $4
+        )
+        `,
+        [
+            userId,
+            content,
+            tradeOffer,
+            tradeWant
+        ]
+    );
+
+    res.sendStatus(201);
+});
+
+
+
+app.get("/users/:username/trades", async (req, res) => {
+    const { username } = req.params;
+
+    const result = await pool.query(
+        `
+        SELECT p.*
+        FROM posts p
+        JOIN users u
+            ON p.user_id = u.id
+        WHERE u.username = $1
+        AND p.post_type = 'trade'
+        ORDER BY p.created_at DESC
+        `,
+        [username]
+    );
+
+    res.json(result.rows);
 });
 
 

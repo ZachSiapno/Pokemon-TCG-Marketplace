@@ -25,16 +25,42 @@
         </nav>
         
         <main class="posts">
-
             <form id="postForm">
+
+                <select id="postType">
+                    <option value="post">
+                        Normal Post
+                    </option>
+
+                    <option value="trade">
+                        Trade Post
+                    </option>
+                </select>
+
                 <textarea
                     id="content"
                     placeholder="What's on your mind?"
                 ></textarea>
 
+                <div id="tradeFields" style="display:none;">
+
+                    <input
+                        type="text"
+                        id="tradeOffer"
+                        placeholder="Cards you're offering"
+                    >
+
+                    <input
+                        type="text"
+                        id="tradeWant"
+                        placeholder="Cards you're looking for"
+                    >
+                </div>
+
                 <button type="submit">
                     Post
                 </button>
+
             </form>
 
             <div id="posts"></div>
